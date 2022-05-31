@@ -1,27 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Wrapper as PopperWrapper } from "~/components/Popper";
-import AccountItem from "~/components/AccountItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark, faSpinner } from "@fortawesome/free-solid-svg-icons";
-
 import HeadlessTippy from "@tippyjs/react/headless";
 import classnames from "classnames/bind";
+
+import * as searchServices from "~/apiServices/searchServices";
+import { Wrapper as PopperWrapper } from "~/components/Popper";
+import AccountItem from "~/components/AccountItem";
 import styles from "./Search.module.scss";
 import { SearchIcon } from "~/components/Icons";
+import { useDebounce } from "~/components/hooks";
+
 const cx = classnames.bind(styles);
 
 function Search() {
   const [searchValue, setSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const debounced = useDebounce(searchValue, 500);
 
   const inputRef = useRef();
 
   useEffect(() => {
-    setTimeout(() => {
-      setSearchResults([1, 2, 3]);
-    }, 3000);
-  }, []);
+    if (!debounced.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const fetchApi = async () => {
+      setLoading(true);
+
+      const result = await searchServices.search(debounced);
+      setSearchResults(result);
+
+      setLoading(false);
+    };
+
+    fetchApi();
+  }, [debounced]);
 
   const handleClear = () => {
     setSearchValue("");
@@ -41,10 +59,9 @@ function Search() {
         <div className={cx("search-results")} tabIndex="-1" {...attrs}>
           <PopperWrapper>
             <h4 className={cx("search-titles")}>Accounts</h4>
-            <AccountItem />
-            <AccountItem />
-            <AccountItem />
-            <AccountItem />
+            {searchResults.map((result) => (
+              <AccountItem key={result.id} data={result} />
+            ))}
           </PopperWrapper>
         </div>
       )}
@@ -60,12 +77,14 @@ function Search() {
           onChange={(e) => setSearchValue(e.target.value)}
           onFocus={() => setShowResults(true)}
         />
-        {!!searchValue && (
+        {!!searchValue && !loading && (
           <button className={cx("clear")} onClick={handleClear}>
             <FontAwesomeIcon icon={faCircleXmark} />
           </button>
         )}
-        {/* <FontAwesomeIcon icon={faSpinner} className={cx("loading")} /> */}
+        {loading && (
+          <FontAwesomeIcon icon={faSpinner} className={cx("loading")} />
+        )}
 
         <button className={cx("search-btn")}>
           <SearchIcon />
