@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleQuestion,
@@ -21,6 +22,7 @@ import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { InboxIcon, MessageIcon, UploadIcon } from "~/components/Icons";
 import Images from "~/components/Images";
 import Search from "../Search";
+import Routesconfig from "~/config/routes";
 
 const cx = classnames.bind(styles);
 const MENU_ITEMS = [
@@ -50,7 +52,7 @@ const MENU_ITEMS = [
   },
   {
     icon: <FontAwesomeIcon icon={faKeyboard} />,
-    title: "Keybroad shorcut",
+    title: "Keyboard shortcut",
   },
 ];
 
@@ -95,7 +97,9 @@ function Header() {
     <header className={cx("wrapper")}>
       <div className={cx("inner")}>
         <div className={cx("logo")}>
-          <img src={images.logo} alt="Tiktok" />
+          <Link to={Routesconfig.home} className={cx("logo-link")}>
+            <img src={images.logo} alt="Tiktok" />
+          </Link>
         </div>
         <Search />
         <div className={cx("action")}>
