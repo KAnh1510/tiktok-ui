@@ -5,6 +5,7 @@
 }
 
 .container {
+  max-width: 100%;
   width: var(--default-layout-header-width);
   margin-top: var(--default-layout-header-height);
   display: flex;
